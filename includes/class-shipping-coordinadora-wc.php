@@ -46,20 +46,11 @@ function shipping_coordinadora_wc_init() {
              */
             public function calculate_shipping( $package = array() )
             {
-                $rate = array(
-                    'id' => $this->id,
-                    'label'   => $this->title,
-                    'cost'		=> 0,
-                    'package' => $package
-                );
-
                 global $wpdb;
+                global $woocommerce;
                 $table_name = $wpdb->prefix . 'shipping_coordinadora_cities';
                 $state_destination = $package['destination']['state'];
                 $city_destination = $package['destination']['city'];
-
-
-                global $woocommerce;
                 $items = $woocommerce->cart->get_cart();
 
                 $cart_prods = array();
@@ -80,6 +71,7 @@ function shipping_coordinadora_wc_init() {
                     }
                 }
 
+                $applyCost = false;
 
                 if (!empty($cart_prods) && $package['destination']['country'] === 'CO'
                     && $state_destination && $city_destination){
@@ -127,10 +119,10 @@ function shipping_coordinadora_wc_init() {
                             )
                         );
 
-
                         try{
                             $data = $client->__call('Cotizador_cotizar', array($body));
                             $res = $data->Cotizador_cotizarResult;
+                            $applyCost = true;
                             $rate = array(
                                 'id' => $this->id,
                                 'label' => $this->title,
@@ -138,13 +130,17 @@ function shipping_coordinadora_wc_init() {
                                 'package' => $package
                             );
                         }catch (\Exception $ex){
-                            $this->logger->add('shipping-coordinadora', print_r($ex->getMessage(), true));
+                            $this->logger->add('shipping-coordinadora', $ex->getMessage(), true);
                         }
 
                     }
                 }
 
-                $this->add_rate( $rate );
+                if ($applyCost){
+                    $this->add_rate( $rate );
+                }else{
+                    apply_filters( 'woocommerce_shipping_' . $this->id . '_is_available', false, $package, $this );
+                }
             }
         }
     }
