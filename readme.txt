@@ -56,6 +56,8 @@ La reciente versión esta limitada podrá adquirir la paga con todas sus funcion
 * Update readme and add image screenshot-3.png
 = 1.0.3 =
 * Requiere enable Woocommerce plugin
+= 1.0.4 =
+* Fixed create database hook activation
 
 == Additional Info ==
 **Contribute** [repository on github](https://github.com/saulmoralespa/shipping-coordinadora-wc)

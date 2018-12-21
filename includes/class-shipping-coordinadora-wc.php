@@ -102,8 +102,8 @@ function shipping_coordinadora_wc_init() {
                         $client = New SoapClient(shipping_coordinadora_wc_cswc()->tracing_url_coordinadora);
 
 
-                        $this->logger->add('shipping-coordinadora', 'origen ' . $result_local->codigo, true);
-                        $this->logger->add('shipping-coordinadora', 'destino ' . $result_destination->codigo, true);
+                        $this->logger->add('shipping-coordinadora', 'origen ' . $result_local->codigo);
+                        $this->logger->add('shipping-coordinadora', 'destino ' . $result_destination->codigo);
 
                         $body = array(
                             'p' => array(
