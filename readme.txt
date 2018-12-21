@@ -5,7 +5,7 @@ Tags: commerce, e-commerce, commerce, wordpress ecommerce, store, sales, sell, s
 Requires at least: 5.0
 Tested up to: 5.0
 Requires PHP: 5.6.0
-Stable tag: 1.0.1
+Stable tag: 1.0.3
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -26,7 +26,8 @@ seguimiento de despachos. Actualmente en esta versión solo permite calcular el 
 4. Encuentra el plugin descargado en tu computadora y cárgalo como cualquier otro archivo.
 5. Después de instalar el .zip, puede verlo en la lista de complementos instalados, puede activarlo o desactivarlo.
 6. Active el plugin y siga el proceso de configuración.
-7. ** Asegúrese por favor de establecer tanto el país, estado y ciudad donde se ecnuentra ubicada la tienda
+7. ** Asegúrese por favor de establecer tanto el país, estado y ciudad donde se ecnuentra ubicada la tienda.
+8. Establezca los detalles del envío del producto, ver captura de pantalla.
 
 
 == Frequently Asked Questions ==
@@ -37,12 +38,13 @@ Debe solicitar el servicio de coordinadora mercantil en su departamento
 
 = ¿ Algo más que no me hayas dicho ? =
 
-1. La reciente versión esta limitada podrá adquirir la paga con todas sus funciones que brinda coordinadora
+La reciente versión esta limitada podrá adquirir la paga con todas sus funciones que brinda coordinadora
 
 == Screenshots ==
 
 1. Establezca la ubicación de la tienda screenshot-1.png
-2. Medio de envio en función screenshot-2.png
+2. Establezca los detalles de envío del producto screenshot-2.png
+3. Medio de envío en función screenshot-3.png
 
 == Changelog ==
 
@@ -50,6 +52,10 @@ Debe solicitar el servicio de coordinadora mercantil en su departamento
 * Initial stable release
 = 1.0.1 =
 * Fixed when the shipment is enabled
+= 1.0.2 =
+* Update readme and add image screenshot-3.png
+= 1.0.3 =
+* Requiere enable Woocommerce plugin
 
 == Additional Info ==
 **Contribute** [repository on github](https://github.com/saulmoralespa/shipping-coordinadora-wc)
