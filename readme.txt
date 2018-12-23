@@ -20,6 +20,7 @@ seguimiento de despachos. Actualmente en esta versión solo permite calcular el 
 
 == Installation ==
 
+
 1. Descargar el plugin
 2. Ingrese a su administrador de wordpress
 3. Ingrese al menu plugins / añadir nuevo / subir plugin.
@@ -28,6 +29,9 @@ seguimiento de despachos. Actualmente en esta versión solo permite calcular el 
 6. Active el plugin y siga el proceso de configuración.
 7. ** Asegúrese por favor de establecer tanto el país, estado y ciudad donde se ecnuentra ubicada la tienda.
 8. Establezca los detalles del envío del producto, ver captura de pantalla.
+
+
+[youtube https://www.youtube.com/watch?v=8PKl9uMdhEE]
 
 
 == Frequently Asked Questions ==
@@ -56,8 +60,6 @@ La reciente versión esta limitada podrá adquirir la paga con todas sus funcion
 * Update readme and add image screenshot-3.png
 = 1.0.3 =
 * Requiere enable Woocommerce plugin
-= 1.0.4 =
-* Fixed create database hook activation
 
 == Additional Info ==
 **Contribute** [repository on github](https://github.com/saulmoralespa/shipping-coordinadora-wc)
