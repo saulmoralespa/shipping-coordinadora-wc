@@ -81,8 +81,8 @@ function shipping_coordinadora_wc_init() {
                     $state_name = $country_states_array['CO'][$state_destination];
 
                     $state_base = $countries_obj->get_base_state();
-                    $city_local = $countries_obj->get_base_city();
-                        $state_base_name = $country_states_array['CO'][$state_base];
+                    $city_local = ucfirst(mb_strtolower($countries_obj->get_base_city()));
+                    $state_base_name = $country_states_array['CO'][$state_base];
 
 
                     if($state_name === 'Valle del Cauca')
@@ -101,9 +101,8 @@ function shipping_coordinadora_wc_init() {
 
                         $client = New SoapClient(shipping_coordinadora_wc_cswc()->tracing_url_coordinadora);
 
-
-                        $this->logger->add('shipping-coordinadora', 'origen ' . $result_local->codigo);
-                        $this->logger->add('shipping-coordinadora', 'destino ' . $result_destination->codigo);
+                        //$this->logger->add('shipping-coordinadora', 'origen ' . $result_local->codigo);
+                        //$this->logger->add('shipping-coordinadora', 'destino ' . $result_destination->codigo);
 
                         $body = array(
                             'p' => array(
