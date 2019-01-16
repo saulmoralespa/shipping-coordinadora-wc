@@ -81,7 +81,7 @@ function shipping_coordinadora_wc_init() {
                     $state_name = $country_states_array['CO'][$state_destination];
 
                     $state_base = $countries_obj->get_base_state();
-                    $city_local = ucfirst(mb_strtolower($countries_obj->get_base_city()));
+                    $city_local = $this->formattedNamelocation($countries_obj->get_base_city());
                     $state_base_name = $country_states_array['CO'][$state_base];
 
 
@@ -101,8 +101,8 @@ function shipping_coordinadora_wc_init() {
 
                         $client = New SoapClient(shipping_coordinadora_wc_cswc()->tracing_url_coordinadora);
 
-                        //$this->logger->add('shipping-coordinadora', 'origen ' . $result_local->codigo);
-                        //$this->logger->add('shipping-coordinadora', 'destino ' . $result_destination->codigo);
+                        $this->logger->add('shipping-coordinadora', 'origen ' . $result_local->codigo);
+                        $this->logger->add('shipping-coordinadora', 'destino ' . $result_destination->codigo);
 
                         $body = array(
                             'p' => array(
@@ -145,6 +145,18 @@ function shipping_coordinadora_wc_init() {
                     apply_filters( 'woocommerce_shipping_' . $this->id . '_is_available', false, $package, $this );
                 }
             }
+
+            public function formattedNamelocation($nameLocation)
+            {
+                $nameLocation = ucfirst(mb_strtolower($nameLocation));
+                $nameLocation = str_replace("á", 'a', $nameLocation);
+                $nameLocation = str_replace("é", 'e', $nameLocation);
+                $nameLocation = str_replace("í", 'i', $nameLocation);
+                $nameLocation = str_replace("ó", 'o', $nameLocation);
+                $nameLocation = str_replace("ú", 'u', $nameLocation);
+                return $nameLocation;
+            }
+
         }
     }
 }
