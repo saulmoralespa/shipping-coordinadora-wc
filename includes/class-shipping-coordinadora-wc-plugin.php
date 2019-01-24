@@ -112,27 +112,21 @@ class Shipping_Coordinadora_WC_Plugin
         $res = $client->__call('Cotizador_ciudades', array());
         $cities = $res->Cotizador_ciudadesResult;
 
-        $citiesArr = array();
+        foreach ($cities->item as  $city){
 
-        foreach ($cities as  $city){
-            $citiesArr = array_filter(array_map(function($var) {
-                if($var->estado == 'activo'){
-                    $name = explode(' (', $var->nombre);
-                    $name = ucfirst(mb_strtolower($name[0]));
-                    return array('nombre' => $name, 'codigo' => $var->codigo, 'nombre_departamento' => $var->nombre_departamento);
-                }
-            }, $city));
+            if ($city->estado == 'activo'){
+                $name = explode(' (', $city->nombre);
+                $name = ucfirst(mb_strtolower($name[0]));
+                $wpdb->insert(
+                    $table_name,
+                    array(
+                        'nombre' => $name,
+                        'codigo' => $city->codigo,
+                        'nombre_departamento' => $city->nombre_departamento
+                    )
+                );
+            }
         }
 
-        for($i = 0; $i <= count($citiesArr); $i++){
-            $wpdb->insert(
-                $table_name,
-                array(
-                    'nombre' => $citiesArr[$i]['nombre'],
-                    'codigo' => $citiesArr[$i]['codigo'],
-                    'nombre_departamento' => $citiesArr[$i]['nombre_departamento']
-                )
-            );
-        }
     }
 }
