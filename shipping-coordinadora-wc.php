@@ -30,6 +30,20 @@ function shipping_coordinadora_wc_cswc_init(){
         delete_option('shipping_coordinadora_wc_cswc_redirect');
         wp_redirect(admin_url('admin.php?page=coordinadora-install-setp'));
     }
+
+    /*require_once ('lib/plugin-update-checker/plugin-update-checker.php');
+    $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+    'https://gitlab.com/saulmoralespa/shipping-coordinadora-wc',
+    __FILE__,
+    'shipping-coordinadora-wc'
+    );
+
+    //Optional: If you're using a private repository, specify the access token like this:
+    $myUpdateChecker->setAuthentication('_Erxoj95girxqpKrHszY');
+
+    //Optional: Set the branch that contains the stable release.
+    $myUpdateChecker->setBranch('master');*/
+
 }
 
 function shipping_coordinadora_wc_cswc_notices($notice){
