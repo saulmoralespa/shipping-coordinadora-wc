@@ -164,11 +164,11 @@ function activate_shipping_coordinadora_wc_cswc(){
     }
     update_option('shipping_coordinadora_wc_cswc_version',SHIPPING_COORDINADORA_WC_CSWC_VERSION);
     add_option('shipping_coordinadora_wc_cswc_redirect', true);
-    wp_schedule_event( time(), 'daily', 'shipping_coordinadora_wc_cswc' );
+    wp_schedule_event( time(), 'daily', 'shipping_coordinadora_wc_cswc_schedule' );
 }
 
 function deactivation_shipping_coordinadora_wc_cswc(){
-    wp_clear_scheduled_hook( 'shipping_coordinadora_wc_cswc' );
+    wp_clear_scheduled_hook( 'shipping_coordinadora_wc_cswc_schedule' );
 }
 
 register_activation_hook(__FILE__,'activate_shipping_coordinadora_wc_cswc');
