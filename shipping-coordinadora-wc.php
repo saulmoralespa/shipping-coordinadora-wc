@@ -2,7 +2,7 @@
 /*
 Plugin Name: Shipping Coordinadora Woocommerce
 Description: Shipping Coordinadora Woocommerce is available for Colombia
-Version: 1.0.6
+Version: 1.0.7
 Author: Saul Morales Pacheco
 Author URI: https://saulmoralespa.com
 License: GNU General Public License v3.0
@@ -15,8 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-if ( ! defined( 'SHIPPING_COORDINADORA_WC_CSWC_VERSION' ) ) {
-    define( 'SHIPPING_COORDINADORA_WC_CSWC_VERSION', '1.0.6' );
+if(!defined('SHIPPING_COORDINADORA_WC_CSWC_VERSION')){
+    define('SHIPPING_COORDINADORA_WC_CSWC_VERSION', '1.0.7');
 }
 
 add_action( 'plugins_loaded', 'shipping_coordinadora_wc_cswc_init', 0 );
@@ -35,6 +35,20 @@ function shipping_coordinadora_wc_cswc_init() {
         delete_option( 'shipping_coordinadora_wc_cswc_redirect' );
         wp_redirect( admin_url( 'admin.php?page=coordinadora-install-setp' ) );
     }
+
+    /*require_once ('lib/plugin-update-checker/plugin-update-checker.php');
+    $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+    'https://gitlab.com/saulmoralespa/shipping-coordinadora-wc',
+    __FILE__,
+    'shipping-coordinadora-wc'
+    );
+
+    //Optional: If you're using a private repository, specify the access token like this:
+    $myUpdateChecker->setAuthentication('_Erxoj95girxqpKrHszY');
+
+    //Optional: Set the branch that contains the stable release.
+    $myUpdateChecker->setBranch('master');*/
+
 }
 
 /**
@@ -208,14 +222,14 @@ function activate_shipping_coordinadora_wc_cswc() {
     }
     update_option( 'shipping_coordinadora_wc_cswc_version', SHIPPING_COORDINADORA_WC_CSWC_VERSION );
     add_option( 'shipping_coordinadora_wc_cswc_redirect', true );
-    wp_schedule_event( time(), 'daily', 'shipping_coordinadora_wc_cswc' );
+    wp_schedule_event( time(), 'daily', 'shipping_coordinadora_wc_cswc_schedule' );
 }
 
 /**
  * Deactivaction hook function for the plugin.
  */
 function deactivation_shipping_coordinadora_wc_cswc() {
-    wp_clear_scheduled_hook( 'shipping_coordinadora_wc_cswc' );
+    wp_clear_scheduled_hook( 'shipping_coordinadora_wc_cswc_schedule' );
 }
 
 register_activation_hook( __FILE__, 'activate_shipping_coordinadora_wc_cswc' );

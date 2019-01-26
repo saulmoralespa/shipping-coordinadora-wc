@@ -81,7 +81,7 @@ class Shipping_Coordinadora_WC_Plugin
         $this->admin = new Shipping_Coordinadora_WC_Admin();
 
         add_filter( 'plugin_action_links_' . plugin_basename( $this->file), array( $this, 'plugin_action_links' ) );
-        add_action( 'shipping_coordinadora_wc_cswc',array($this, 'update_cities'));
+        add_action( 'shipping_coordinadora_wc_cswc_schedule',array($this, 'update_cities'));
         add_action( 'woocommerce_shipping_init', 'shipping_coordinadora_wc_init' );
         add_filter( 'woocommerce_shipping_methods', array( $this, 'shipping_coordinadora_wc_add_method') );
     }
@@ -112,27 +112,21 @@ class Shipping_Coordinadora_WC_Plugin
         $res = $client->__call('Cotizador_ciudades', array());
         $cities = $res->Cotizador_ciudadesResult;
 
-        $citiesArr = array();
+        foreach ($cities->item as  $city){
 
-        foreach ($cities as  $city){
-            $citiesArr = array_filter(array_map(function($var) {
-                if($var->estado == 'activo'){
-                    $name = explode(' (', $var->nombre);
-                    $name = ucfirst(mb_strtolower($name[0]));
-                    return array('nombre' => $name, 'codigo' => $var->codigo, 'nombre_departamento' => $var->nombre_departamento);
-                }
-            }, $city));
+            if ($city->estado == 'activo'){
+                $name = explode(' (', $city->nombre);
+                $name = ucfirst(mb_strtolower($name[0]));
+                $wpdb->insert(
+                    $table_name,
+                    array(
+                        'nombre' => $name,
+                        'codigo' => $city->codigo,
+                        'nombre_departamento' => $city->nombre_departamento
+                    )
+                );
+            }
         }
 
-        for($i = 0; $i <= count($citiesArr); $i++){
-            $wpdb->insert(
-                $table_name,
-                array(
-                    'nombre' => $citiesArr[$i]['nombre'],
-                    'codigo' => $citiesArr[$i]['codigo'],
-                    'nombre_departamento' => $citiesArr[$i]['nombre_departamento']
-                )
-            );
-        }
     }
 }
