@@ -54,7 +54,7 @@ class Shipping_Coordinadora_WC_Plugin
         $this->plugin_url    = trailingslashit( plugin_dir_url( $this->file ) );
         $this->includes_path = $this->plugin_path . trailingslashit( 'includes' );
         $this->tracing_url_coordinadora = "http://sandbox.coordinadora.com/ags/1.4/server.php?wsdl";
-        $this->logger = new WC_Logger();
+        $this->logger        = new WC_Logger();
     }
 
     public function run_coordinadora_wc()

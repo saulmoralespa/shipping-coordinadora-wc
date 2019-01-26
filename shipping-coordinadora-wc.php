@@ -11,41 +11,60 @@ WC tested up to: 3.5
 WC requires at least: 2.6
 */
 
-if (!defined( 'ABSPATH' )) exit;
-
-if(!defined('SHIPPING_COORDINADORA_WC_CSWC_VERSION')){
-    define('SHIPPING_COORDINADORA_WC_CSWC_VERSION', '1.0.6');
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
 }
 
-add_action('plugins_loaded','shipping_coordinadora_wc_cswc_init',0);
+if ( ! defined( 'SHIPPING_COORDINADORA_WC_CSWC_VERSION' ) ) {
+    define( 'SHIPPING_COORDINADORA_WC_CSWC_VERSION', '1.0.6' );
+}
 
-function shipping_coordinadora_wc_cswc_init(){
-    if (!shipping_coordinadora_wc_cswc_requirements()){
+add_action( 'plugins_loaded', 'shipping_coordinadora_wc_cswc_init', 0 );
+
+/**
+ * Check for the conditions to initialize the plugin if the requirements are met, the plugin starts.
+ */
+function shipping_coordinadora_wc_cswc_init() {
+    if ( ! shipping_coordinadora_wc_cswc_requirements() ) {
         return;
     }
 
     shipping_coordinadora_wc_cswc()->run_coordinadora_wc();
 
-    if(get_option('shipping_coordinadora_wc_cswc_redirect', false)){
-        delete_option('shipping_coordinadora_wc_cswc_redirect');
-        wp_redirect(admin_url('admin.php?page=coordinadora-install-setp'));
+    if ( get_option( 'shipping_coordinadora_wc_cswc_redirect', false ) ) {
+        delete_option( 'shipping_coordinadora_wc_cswc_redirect' );
+        wp_redirect( admin_url( 'admin.php?page=coordinadora-install-setp' ) );
     }
 }
 
-function shipping_coordinadora_wc_cswc_notices($notice){
+/**
+ * This function is used for showing notice messages when one
+ * of the requirements for the plugin to initialize is not met.
+ *
+ * @param  string $notice The message to show.
+ */
+function shipping_coordinadora_wc_cswc_notices( $notice ) {
     ?>
     <div class="error notice">
-        <p><?php echo $notice; ?></p>
+        <p><?php echo esc_html( $notice ); ?></p>
     </div>
     <?php
 }
 
-function shipping_coordinadora_wc_cswc_requirements(){
+/**
+ * Check for the requirements for the plugin to initialize.
+ *
+ * @return boolean false if at least on of the conditions are not met, otherwise this value is true.
+ */
+function shipping_coordinadora_wc_cswc_requirements() {
     if ( version_compare( '5.6.0', PHP_VERSION, '>' ) ) {
         if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
-            add_action('admin_notices', function() {
-                shipping_coordinadora_wc_cswc_notices('Coordinadora shipping Woocommerce: Requiere la versión de php 5.6 o superior');
-            });
+            add_action(
+                'admin_notices',
+                function() {
+                    shipping_coordinadora_wc_cswc_notices( 'Coordinadora shipping Woocommerce: Requiere la versión de php 5.6 o superior' );
+                }
+            );
         }
         return false;
     }
@@ -54,9 +73,12 @@ function shipping_coordinadora_wc_cswc_requirements(){
 
     if ( ! defined( 'OPENSSL_VERSION_TEXT' ) ) {
         if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
-            add_action('admin_notices', function() use($openssl_warning) {
-                shipping_coordinadora_wc_cswc_notices($openssl_warning);
-            });
+            add_action(
+                'admin_notices',
+                function() use ( $openssl_warning ) {
+                    shipping_coordinadora_wc_cswc_notices( $openssl_warning );
+                }
+            );
         }
         return false;
     }
@@ -64,27 +86,36 @@ function shipping_coordinadora_wc_cswc_requirements(){
     preg_match( '/^(?:Libre|Open)SSL ([\d.]+)/', OPENSSL_VERSION_TEXT, $matches );
     if ( empty( $matches[1] ) ) {
         if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
-            add_action('admin_notices', function() use($openssl_warning) {
-                shipping_coordinadora_wc_cswc_notices($openssl_warning);
-            });
+            add_action(
+                'admin_notices',
+                function() use ( $openssl_warning ) {
+                    shipping_coordinadora_wc_cswc_notices( $openssl_warning );
+                }
+            );
         }
         return false;
     }
 
     if ( ! version_compare( $matches[1], '1.0.1', '>=' ) ) {
         if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
-            add_action('admin_notices', function() use($openssl_warning) {
-                shipping_coordinadora_wc_cswc_notices($openssl_warning);
-            });
+            add_action(
+                'admin_notices',
+                function() use ( $openssl_warning ) {
+                    shipping_coordinadora_wc_cswc_notices( $openssl_warning );
+                }
+            );
         }
         return false;
     }
 
-    if ( !extension_loaded( 'soap' ) ) {
+    if ( ! extension_loaded( 'soap' ) ) {
         if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
-            add_action('admin_notices', function() {
-                shipping_coordinadora_wc_cswc_notices('Requiere la extensión soap se encuentre instalada');
-            });
+            add_action(
+                'admin_notices',
+                function() {
+                    shipping_coordinadora_wc_cswc_notices( 'Requiere la extensión soap se encuentre instalada' );
+                }
+            );
         }
         return false;
     }
@@ -95,39 +126,49 @@ function shipping_coordinadora_wc_cswc_requirements(){
         true
     ) ) {
         if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
-            add_action('admin_notices', function() {
-                shipping_coordinadora_wc_cswc_notices('Requiere que se encuentre instalado y activo el plugin: Woocommerce');
-            });
+            add_action(
+                'admin_notices',
+                function() {
+                    shipping_coordinadora_wc_cswc_notices( 'Requiere que se encuentre instalado y activo el plugin: Woocommerce' );
+                }
+            );
         }
         return false;
     }
 
-    if ( !in_array(
+    if ( ! in_array(
         'departamentos-y-ciudades-de-colombia-para-woocommerce/departamentos-y-ciudades-de-colombia-para-woocommerce.php',
         apply_filters( 'active_plugins', get_option( 'active_plugins' ) ),
         true
     ) ) {
         if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
-            add_action('admin_notices', function() {
-                shipping_coordinadora_wc_cswc_notices('Requiere que se encuentre instalado y activo el plugin:
-                 Departamentos y ciudades de Colombia para Woocommerce');
-            });
+            add_action(
+                'admin_notices',
+                function() {
+                    shipping_coordinadora_wc_cswc_notices( 'Requiere que se encuentre instalado y activo el plugin: Departamentos y ciudades de Colombia para Woocommerce' );
+                }
+            );
         }
         return false;
     }
 
-    $woo_countries = new WC_Countries();
+    $woo_countries   = new WC_Countries();
     $default_country = $woo_countries->get_base_country();
 
-    if (!in_array($default_country, array('CO'))){
+    if ( ! in_array( $default_country, array( 'CO' ), true ) ) {
         if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
-            add_action('admin_notices', function() {
-                $country = 'Requiere que el país donde se encuentra ubicada la tienda sea Colombia '  .
-                    sprintf('%s',  '<a href="' . admin_url() .
+            add_action(
+                'admin_notices',
+                function() {
+                    $country = 'Requiere que el país donde se encuentra ubicada la tienda sea Colombia '  .
+                        sprintf(
+                            '%s',
+                            '<a href="' . admin_url() .
                         'admin.php?page=wc-settings&tab=general#s2id_woocommerce_currency">' .
-                        'Click para establecer' . '</a>' );
-                shipping_coordinadora_wc_cswc_notices($country);
-            });
+                        'Click para establecer</a>' );
+                    shipping_coordinadora_wc_cswc_notices( $country );
+                }
+            );
         }
         return false;
     }
@@ -135,20 +176,23 @@ function shipping_coordinadora_wc_cswc_requirements(){
     return true;
 }
 
-function shipping_coordinadora_wc_cswc(){
+function shipping_coordinadora_wc_cswc() {
     static $plugin;
-    if (!isset($plugin)){
-        require_once('includes/class-shipping-coordinadora-wc-plugin.php');
-        $plugin = new Shipping_Coordinadora_WC_Plugin(__FILE__, SHIPPING_COORDINADORA_WC_CSWC_VERSION);
+    if ( ! isset( $plugin ) ) {
+        require_once 'includes/class-shipping-coordinadora-wc-plugin.php';
+        $plugin = new Shipping_Coordinadora_WC_Plugin( __FILE__, SHIPPING_COORDINADORA_WC_CSWC_VERSION );
     }
     return $plugin;
 }
 
-function activate_shipping_coordinadora_wc_cswc(){
+/**
+ * Activation hook function for the plugin.
+ */
+function activate_shipping_coordinadora_wc_cswc() {
     global $wpdb;
 
-    $table_name = $wpdb->prefix . "shipping_coordinadora_cities";
-    if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+    $table_name = $wpdb->prefix . 'shipping_coordinadora_cities';
+    if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) !== $table_name ) {
         $charset_collate = $wpdb->get_charset_collate();
 
         $sql = "CREATE TABLE $table_name (
@@ -159,17 +203,20 @@ function activate_shipping_coordinadora_wc_cswc(){
 		PRIMARY KEY  (id)
 	) $charset_collate;";
 
-        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta( $sql );
     }
-    update_option('shipping_coordinadora_wc_cswc_version',SHIPPING_COORDINADORA_WC_CSWC_VERSION);
-    add_option('shipping_coordinadora_wc_cswc_redirect', true);
+    update_option( 'shipping_coordinadora_wc_cswc_version', SHIPPING_COORDINADORA_WC_CSWC_VERSION );
+    add_option( 'shipping_coordinadora_wc_cswc_redirect', true );
     wp_schedule_event( time(), 'daily', 'shipping_coordinadora_wc_cswc' );
 }
 
-function deactivation_shipping_coordinadora_wc_cswc(){
+/**
+ * Deactivaction hook function for the plugin.
+ */
+function deactivation_shipping_coordinadora_wc_cswc() {
     wp_clear_scheduled_hook( 'shipping_coordinadora_wc_cswc' );
 }
 
-register_activation_hook(__FILE__,'activate_shipping_coordinadora_wc_cswc');
+register_activation_hook( __FILE__, 'activate_shipping_coordinadora_wc_cswc' );
 register_deactivation_hook( __FILE__, 'deactivation_shipping_coordinadora_wc_cswc' );
