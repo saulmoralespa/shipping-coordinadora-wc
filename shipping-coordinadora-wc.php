@@ -1,15 +1,17 @@
 <?php
-/*
-Plugin Name: Shipping Coordinadora Woocommerce
-Description: Shipping Coordinadora Woocommerce is available for Colombia
-Version: 1.0.7
-Author: Saul Morales Pacheco
-Author URI: https://saulmoralespa.com
-License: GNU General Public License v3.0
-License URI: http://www.gnu.org/licenses/gpl-3.0.html
-WC tested up to: 3.5
-WC requires at least: 2.6
-*/
+/**
+ * Plugin Name: Shipping Coordinadora Woocommerce
+ * Description: Shipping Coordinadora Woocommerce is available for Colombia
+ * Version: 1.0.6
+ * Author: Saul Morales Pacheco
+ * Author URI: https://saulmoralespa.com
+ * License: GNU General Public License v3.0
+ * License URI: http://www.gnu.org/licenses/gpl-3.0.html
+ * WC tested up to: 3.5
+ * WC requires at least: 2.6
+ *
+ * @package ShippingCoordinadora
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;

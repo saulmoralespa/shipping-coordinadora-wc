@@ -89,14 +89,13 @@ class Shipping_Coordinadora_WC_Plugin
     public function plugin_action_links($links)
     {
         $plugin_links = array();
-        $plugin_links[] = '<a href="'.admin_url( 'admin.php?page=wc-settings&tab=shipping&section=shipping_coordinadora_wc').'">' . 'Configuraciones' . '</a>';
+        $plugin_links[] = '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=shipping&section=shipping_coordinadora_wc') . '">' . 'Configuraciones' . '</a>';
         $plugin_links[] = '<a href="https://saulmoralespa.github.io/shipping-coordinadora-wc/">' . 'Documentación' . '</a>';
         return array_merge( $plugin_links, $links );
     }
 
-    public function shipping_coordinadora_wc_add_method($methods)
-    {
-        $methods[] = 'Shipping_Coordinadora_WC';
+    public function shipping_coordinadora_wc_add_method( $methods ) {
+        $methods['shipping_coordinadora_wc'] = 'Shipping_Coordinadora_WC';
         return $methods;
     }
 
