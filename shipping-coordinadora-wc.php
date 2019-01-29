@@ -21,8 +21,6 @@ if ( ! defined( 'SHIPPING_COORDINADORA_WC_CSWC_VERSION' ) ) {
     define( 'SHIPPING_COORDINADORA_WC_CSWC_VERSION', '1.0.6' );
 }
 
-define( 'SHIPPING_COORDINADORA_WC_CSWC_PATH', plugin_dir_path( __FILE__ ) );
-
 add_action( 'plugins_loaded', 'shipping_coordinadora_wc_cswc_init', 0 );
 
 /**

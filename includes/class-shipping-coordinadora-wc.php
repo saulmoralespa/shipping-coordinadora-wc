@@ -28,15 +28,24 @@ function shipping_coordinadora_wc_init() {
                 $this->method_title       = __( 'Coordinadora' );  // Title shown in admin.
                 $this->method_description = __( 'Coordinadora empresa transportadora de Colombia' ); // Description shown in admin.
                 $this->title              = __( 'Coordinadora' );
-                $this->supports           = array(
-                    'shipping-zones',
-                    'instance-settings',
-                    'instance-settings-modal',
-                );
+
                 $this->init();
 
                 $this->logger = new WC_Logger();
+
+                $this->apikey = $this->get_option( 'api_key' );
+                $this->passwordTracing = $this->get_option( 'password_tracing' );
+                $this->nit = $this->get_option( 'nit' );
+
             }
+
+            public function is_available($package)
+            {
+                return parent::is_available($package) &&
+                    !empty($this->apikey) &&
+                    !empty($this->passwordTracing);
+            }
+
             /**
              * Init the class settings
              */
@@ -51,8 +60,19 @@ function shipping_coordinadora_wc_init() {
             /**
              * Init the form fields for this shipping method
              */
-            public function init_form_fields() {
-                $this->form_fields = include 'settings.php';
+            public function init_form_fields(){
+                $this->form_fields = include( dirname( __FILE__ ) . '/admin/settings.php' );
+            }
+
+            public function admin_options()
+            {
+                ?>
+                <h3><?php echo $this->title; ?></h3>
+                <p><?php echo $this->method_description; ?></p>
+                <table class="form-table">
+                    <?php $this->generate_settings_html(); ?>
+                </table>
+                <?php
             }
 
             /**
@@ -141,13 +161,10 @@ function shipping_coordinadora_wc_init() {
                                 'detalle'        => array(
                                     'item' => $cart_prods,
                                 ),
-                                'apikey'         => $this->get_option( 'api_key' ),
-                                'clave'          => $this->get_option( 'api_password' ),
+                                'apikey'         => $this->apikey,
+                                'clave'          => $this->passwordTracing,
                             ),
                         );
-
-                        // apikey: 048e77c8-8171-11e8-adc0-fa7ae01bbebc
-                        // clave: 502IPLF6p9QMDe
 
                         try {
                             $data       = $client->__call( 'Cotizador_cotizar', array( $body ) );
