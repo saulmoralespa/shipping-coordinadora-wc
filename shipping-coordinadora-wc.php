@@ -73,6 +73,7 @@ function shipping_coordinadora_wc_cswc_notices( $notice ) {
  * @return boolean false if at least on of the conditions are not met, otherwise this value is true.
  */
 function shipping_coordinadora_wc_cswc_requirements() {
+
     if ( version_compare( '5.6.0', PHP_VERSION, '>' ) ) {
         if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
             add_action(

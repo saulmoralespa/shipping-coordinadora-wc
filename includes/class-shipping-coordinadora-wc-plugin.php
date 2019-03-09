@@ -33,13 +33,11 @@ class Shipping_Coordinadora_WC_Plugin
      */
     public $includes_path;
     /**
+     * Absolute path to plugin lib dir
+     *
      * @var string
      */
-    public $tracing_url_coordinadora;
-    /**
-     * @var WC_Logger
-     */
-    public $logger;
+    public $lib_path;
     /**
      * @var bool
      */
@@ -53,8 +51,7 @@ class Shipping_Coordinadora_WC_Plugin
         $this->plugin_path   = trailingslashit( plugin_dir_path( $this->file ) );
         $this->plugin_url    = trailingslashit( plugin_dir_url( $this->file ) );
         $this->includes_path = $this->plugin_path . trailingslashit( 'includes' );
-        $this->tracing_url_coordinadora = "http://sandbox.coordinadora.com/ags/1.4/server.php?wsdl";
-        $this->logger        = new WC_Logger();
+        $this->lib_path = $this->plugin_path . trailingslashit( 'lib' );
     }
 
     public function run_coordinadora_wc()
@@ -76,13 +73,16 @@ class Shipping_Coordinadora_WC_Plugin
 
     protected function _run()
     {
-        require_once ($this->includes_path . 'class-shipping-coordinadora-wc.php');
+
+        if (!class_exists('\WebService\Servientrega'))
+            require_once ($this->lib_path . 'servientrega-webservice-php/src/WebService.php');
         require_once ($this->includes_path . 'class-shipping-coordinadora-wc-admin.php');
+        require_once ($this->includes_path . 'class-method-shipping-coordinadora-wc.php');
+        require_once ($this->includes_path . 'class-shipping-coordinadora-wc.php');
         $this->admin = new Shipping_Coordinadora_WC_Admin();
 
         add_filter( 'plugin_action_links_' . plugin_basename( $this->file), array( $this, 'plugin_action_links' ) );
-        add_action( 'shipping_coordinadora_wc_cswc_schedule',array($this, 'update_cities'));
-        add_action( 'woocommerce_shipping_init', 'shipping_coordinadora_wc_init' );
+        add_action( 'shipping_coordinadora_wc_cswc_schedule',array('Shipping_Coordinadora_WC', 'update_cities'));
         add_filter( 'woocommerce_shipping_methods', array( $this, 'shipping_coordinadora_wc_add_method') );
     }
 
@@ -95,37 +95,15 @@ class Shipping_Coordinadora_WC_Plugin
     }
 
     public function shipping_coordinadora_wc_add_method( $methods ) {
-        $methods['shipping_coordinadora_wc'] = 'Shipping_Coordinadora_WC';
+        $methods['shipping_coordinadora_wc'] = 'WC_Shipping_Method_Shipping_Coordinadora_WC';
         return $methods;
     }
 
-    public function update_cities()
+    public function log($message)
     {
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'shipping_coordinadora_cities';
-        $sql = "DELETE FROM $table_name";
-        $wpdb->query($sql);
-
-        $client = New SoapClient($this->tracing_url_coordinadora);
-
-        $res = $client->__call('Cotizador_ciudades', array());
-        $cities = $res->Cotizador_ciudadesResult;
-
-        foreach ($cities->item as  $city){
-
-            if ($city->estado == 'activo'){
-                $name = explode(' (', $city->nombre);
-                $name = ucfirst(mb_strtolower($name[0]));
-                $wpdb->insert(
-                    $table_name,
-                    array(
-                        'nombre' => $name,
-                        'codigo' => $city->codigo,
-                        'nombre_departamento' => $city->nombre_departamento
-                    )
-                );
-            }
-        }
-
+        if (is_array($message) || is_object($message))
+            $message = print_r($message, true);
+        $logger = new WC_Logger();
+        $logger->add('shipping-coordinadora', $message);
     }
 }

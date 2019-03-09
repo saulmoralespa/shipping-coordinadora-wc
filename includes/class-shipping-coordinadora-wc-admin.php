@@ -34,7 +34,7 @@ class Shipping_Coordinadora_WC_Admin
 
     public function shipping_coordinadora_wc_cswc_ajax()
     {
-        shipping_coordinadora_wc_cswc()->update_cities();
+        do_action('shipping_coordinadora_wc_cswc_schedule');
         die();
     }
 

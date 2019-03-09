@@ -1,210 +1,162 @@
 <?php
 /**
- * This file contains the shipping_coordinadora_wc_init function
- *
- * @package ShippingCoordinadora
+ * Created by PhpStorm.
+ * User: smp
+ * Date: 7/03/19
+ * Time: 05:59 PM
  */
 
-/**
- * Defines the Shipping_Coordinadora_WC class.
- */
-function shipping_coordinadora_wc_init() {
-    if ( ! class_exists( 'Shipping_Coordinadora_WC' ) ) {
-        /**
-         * Shipping Method for Coordinadora
-         */
-        class Shipping_Coordinadora_WC extends WC_Shipping_Method {
-            /**
-             * Initializes the class variables
-             *
-             * @param integer $instance_id Instance ID of the class
-             */
-            public function __construct( $instance_id = 0 ) {
+use Servientrega\WebService;
 
-                parent::__construct( $instance_id );
+class Shipping_Coordinadora_WC extends WC_Shipping_Method_Shipping_Coordinadora_WC
+{
 
-                $this->id                 = 'shipping_coordinadora_wc';
-                $this->instance_id        = absint( $instance_id );
-                $this->method_title       = __( 'Coordinadora' );  // Title shown in admin.
-                $this->method_description = __( 'Coordinadora empresa transportadora de Colombia' ); // Description shown in admin.
-                $this->title              = __( 'Coordinadora' );
+    public $coordinadora;
 
-                $this->init();
+    public function __construct($instance_id = 0)
+    {
+        parent::__construct($instance_id);
 
-                $this->logger = new WC_Logger();
+        $this->coordinadora = new WebService($this->apikey, $this->password_tracings, $this->nit, $this->id_client, $this->user, $this->password_guides);
+    }
 
-                $this->apikey = $this->get_option( 'api_key' );
-                $this->passwordTracing = $this->get_option( 'password_tracing' );
-                $this->nit = $this->get_option( 'nit' );
+    public function update_cities()
+    {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'shipping_coordinadora_cities';
+        $sql = "DELETE FROM $table_name";
+        $wpdb->query($sql);
 
-            }
+        try{
+            $cities = $cities = WebService::Cotizador_ciudades();
+            foreach ($cities->item as  $city){
 
-            public function is_available($package)
-            {
-                return parent::is_available($package) &&
-                    !empty($this->apikey) &&
-                    !empty($this->passwordTracing);
-            }
-
-            /**
-             * Init the class settings
-             */
-            function init() {
-                // Load the settings API.
-                $this->init_form_fields(); // This is part of the settings API. Override the method to add your own settings.
-                $this->init_settings(); // This is part of the settings API. Loads settings you previously init.
-                // Save settings in admin if you have any defined.
-                add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
-            }
-
-            /**
-             * Init the form fields for this shipping method
-             */
-            public function init_form_fields(){
-                $this->form_fields = include( dirname( __FILE__ ) . '/admin/settings.php' );
-            }
-
-            public function admin_options()
-            {
-                ?>
-                <h3><?php echo $this->title; ?></h3>
-                <p><?php echo $this->method_description; ?></p>
-                <table class="form-table">
-                    <?php $this->generate_settings_html(); ?>
-                </table>
-                <?php
-            }
-
-            /**
-             * Calculate the rates for this shipping method.
-             *
-             * @access public
-             * @param mixed $package Array containing the cart packages. To see more about these packages see the 'calculate_shipping' method in this file: woocommerce/includes/class-wc-cart.php.
-             */
-            public function calculate_shipping( $package = array() ) {
-                global $wpdb;
-                global $woocommerce;
-                $table_name        = $wpdb->prefix . 'shipping_coordinadora_cities';
-                $state_destination = $package['destination']['state'];
-                $city_destination  = $package['destination']['city'];
-                $items             = $woocommerce->cart->get_cart();
-
-                $cart_prods = array();
-
-                foreach ( $items as $item => $values ) {
-                    $_product = wc_get_product( $values['data']->get_id() );
-
-                    if ( $_product->get_weight() && $_product->get_length()
-                        && $_product->get_width() && $_product->get_height() ) {
-                        $cart_prods[] = array(
-                            'ubl'      => '0',
-                            'alto'     => $_product->get_height(),
-                            'ancho'    => $_product->get_width(),
-                            'largo'    => $_product->get_length(),
-                            'peso'     => $_product->get_weight(),
-                            'unidades' => $values['quantity'],
-                        );
-                    } else {
-                        $this->logger->add( 'shipping-coordinadora', 'All products have to have a weight, a width, a lenght, and a height, otherwise this shipping method can not generate a valid rate', true );
-                        break;
-                    }
-                }
-
-                $apply_cost = false;
-
-                if ( ! empty( $cart_prods ) && 'CO' === $package['destination']['country']
-                    && $state_destination && $city_destination ) {
-
-                    $countries_obj        = new WC_Countries();
-                    $country_states_array = $countries_obj->get_states();
-                    $state_name           = $country_states_array['CO'][ $state_destination ];
-
-                    $state_base      = $countries_obj->get_base_state();
-                    $city_local      = $this->formattedNamelocation( $countries_obj->get_base_city() );
-                    $state_base_name = $country_states_array['CO'][ $state_base ];
-
-
-                    if ( 'Valle del Cauca' === $state_name ) {
-                        $state_name = 'Valle';
-                    }
-
-                    if ( 'Valle del Cauca' === $state_base_name ) {
-                        $state_base_name = 'Valle';
-                    }
-
-
-                    $query = "SELECT codigo FROM $table_name WHERE nombre_departamento='$state_name' AND nombre='$city_destination'";
-
-                    $result_destination = $wpdb->get_row( $query );
-
-                    $query = "SELECT codigo FROM $table_name WHERE nombre_departamento='$state_base_name' AND nombre='$city_local'";
-
-                    $result_local = $wpdb->get_row( $query );
-
-                    if ( ! empty( $result_destination ) && ! empty( $result_local ) ) {
-
-                        $client = new SoapClient( shipping_coordinadora_wc_cswc()->tracing_url_coordinadora );
-
-                        $this->logger->add( 'shipping-coordinadora', 'origen ' . $result_local->codigo );
-                        $this->logger->add( 'shipping-coordinadora', 'destino ' . $result_destination->codigo );
-
-                        $body = array(
-                            'p' => array(
-                                'nit'            => '802001232',
-                                'div'            => '01',
-                                'cuenta'         => '2',
-                                'producto'       => '0',
-                                'origen'         => $result_local->codigo,
-                                'destino'        => $result_destination->codigo,
-                                'valoracion'     => WC()->cart->subtotal,
-                                'nivel_servicio' => array( 0 ),
-                                'detalle'        => array(
-                                    'item' => $cart_prods,
-                                ),
-                                'apikey'         => $this->apikey,
-                                'clave'          => $this->passwordTracing,
-                            ),
-                        );
-
-                        try {
-                            $data       = $client->__call( 'Cotizador_cotizar', array( $body ) );
-                            $res        = $data->Cotizador_cotizarResult;
-                            $apply_cost = true;
-                            $rate       = array(
-                                'id'      => $this->id,
-                                'label'   => $this->title,
-                                'cost'    => $res->flete_total,
-                                'package' => $package,
-                            );
-                        } catch ( \Exception $ex ) {
-                            $this->logger->add( 'shipping-coordinadora', $ex->getMessage(), true );
-                        }
-                    }
-                }
-
-                if ( $apply_cost ) {
-                    $this->add_rate( $rate );
-                } else {
-                    apply_filters( 'woocommerce_shipping_' . $this->id . '_is_available', false, $package, $this );
+                if ($city->estado == 'activo'){
+                    $name = explode(' (', $city->nombre);
+                    $name = ucfirst(mb_strtolower($name[0]));
+                    $wpdb->insert(
+                        $table_name,
+                        array(
+                            'nombre' => $name,
+                            'codigo' => $city->codigo,
+                            'nombre_departamento' => $city->nombre_departamento
+                        )
+                    );
                 }
             }
-
-            /**
-             * Removes the accents in the name of locations
-             *
-             * @param  string $name_location Name of the location with accents.
-             * @return string                Name of the location with no accents.
-             */
-            public function formattedNamelocation( $name_location ) {
-                $name_location = ucfirst( mb_strtolower( $name_location ) );
-                $name_location = str_replace( 'á', 'a', $name_location );
-                $name_location = str_replace( 'é', 'e', $name_location );
-                $name_location = str_replace( 'í', 'i', $name_location );
-                $name_location = str_replace( 'ó', 'o', $name_location );
-                $name_location = str_replace( 'ú', 'u', $name_location );
-                return $name_location;
-            }
-
+        }catch (\Exception $exception){
+            shipping_coordinadora_wc_cswc()->log($exception->getMessage());
         }
+
+    }
+
+    public static function test_connection_tracing()
+    {
+
+        $cart_prods = array(
+            'ubl'      => '0',
+            'alto'     => '70',
+            'ancho'    => '100',
+            'largo'    => '50',
+            'peso'     => '1',
+            'unidades' => '1',
+        );
+
+        $params = array(
+            'div'            => '01',
+            'cuenta'         => '2',
+            'producto'       => '0',
+            'origen'         => "13001000",
+            'destino'        => '25175000',
+            'valoracion'     => '50000',
+            'nivel_servicio' => array(0),
+            'detalle'        => array(
+                'item' => $cart_prods,
+            )
+        );
+
+        try {
+            $instance = new self();
+            $instance->coordinadora->Cotizador_cotizar($params);
+        } catch ( \Exception $ex ) {
+            shipping_coordinadora_wc_cswc_notices( $ex->getMessage() );
+        }
+
+    }
+
+    public static function test_connection_guides()
+    {
+        $cart_prods = array(
+            'ubl' => '0',
+            'alto' => '70',
+            'ancho' => '100',
+            'largo' => '200',
+            'peso' => '1',
+            'unidades' => '1',
+            'referencia' => 'referencepacket',
+            'nombre_empaque' => 'name packet'
+        );
+
+        $params = array(
+            'codigo_remision' => "",
+            'fecha' => date('Y-m-d'),
+            'id_remitente' => '0',
+            'nit_remitente' => '',
+            'nombre_remitente' => 'My shop',
+            'direccion_remitente' => 'calle 45 2-23',
+            'telefono_remitente' => '3170044722',
+            'ciudad_remitente' => '05001000',
+            'nit_destinatario' => '0',
+            'div_destinatario' => '0',
+            'nombre_destinatario' => 'Pedro Perez',
+            'direccion_destinatario' => 'calle 40 20-40',
+            'ciudad_destinatario' => '05001000',
+            'telefono_destinatario' => '3189023450',
+            'valor_declarado' => '90000',
+            'codigo_cuenta' => 2,
+            'codigo_producto' => 0,
+            'nivel_servicio' => 1,
+            'linea' => '',
+            'contenido' => 'nada',
+            'referencia' => '',
+            'observaciones' => '',
+            'estado' => 'IMPRESO', //recomendado para la generación del pdf
+            'detalle' => array(
+                'item' => $cart_prods
+            ),
+            'cuenta_contable' => '',
+            'centro_costos' => '',
+            'recaudos' => array(),
+            'margen_izquierdo' => 1.5,
+            'margen_superior' => 1.5,
+            'id_rotulo' => 0,
+            'usuario_vmi' => '',
+            'formato_impresion' => '',
+            'atributo1_nombre' => '',
+            'atributo1_valor' => '',
+            'notificaciones' => array(
+                'tipo_medio' => '1',
+                'destino_notificacion' => 'example@gmail.com'
+            ),
+            'atributos_retorno' => array(
+                'nit' => '',
+                'div' => '',
+                'nombre' => '',
+                'direccion' => '',
+                'codigo_ciudad' => '05001000',
+                'telefono' => '3170044722'
+            ),
+            'nro_doc_radicados' => '',
+            'nro_sobre' => '',
+        );
+
+        try{
+            $instance = new self();
+            $instance->coordinadora->Guias_generarGuia($params);
+        }
+        catch (\Exception $exception){
+            shipping_coordinadora_wc_cswc_notices( $exception->getMessage() );
+        }
+
     }
 }
