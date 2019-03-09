@@ -123,6 +123,7 @@ class WC_Shipping_Method_Shipping_Coordinadora_WC extends WC_Shipping_Method
                     'unidades' => $values['quantity'],
                 );
             } else {
+                if ($this->debug === 'yes')
                 shipping_coordinadora_wc_cswc()->log('All products have to have a weight, a width, a lenght, and a height, otherwise this shipping method can not generate a valid rate');
                 break;
             }
@@ -145,38 +146,33 @@ class WC_Shipping_Method_Shipping_Coordinadora_WC extends WC_Shipping_Method
 
             if ( ! empty( $result_destination ) ) {
 
-                $client = new SoapClient( shipping_coordinadora_wc_cswc()->tracing_url_coordinadora );
 
-                $body = array(
-                    'p' => array(
-                        'nit'            => '802001232',
-                        'div'            => '01',
-                        'cuenta'         => '2',
-                        'producto'       => '0',
-                        'origen'         => $this->city_sender,
-                        'destino'        => $result_destination->codigo,
-                        'valoracion'     => WC()->cart->subtotal,
-                        'nivel_servicio' => array( 0 ),
-                        'detalle'        => array(
-                            'item' => $cart_prods,
-                        ),
-                        'apikey'         => $this->apikey,
-                        'clave'          => $this->passwordTracing,
-                    ),
+                $params = array(
+                    'div'            => '01',
+                    'cuenta'         => '2',
+                    'producto'       => '0',
+                    'origen'         => $this->city_sender,
+                    'destino'        => $result_destination->codigo,
+                    'valoracion'     => WC()->cart->subtotal,
+                    'nivel_servicio' => array( 0 ),
+                    'detalle'        => array(
+                        'item' => $cart_prods,
+                    )
                 );
 
-                try {
-                    $data       = $client->__call( 'Cotizador_cotizar', array( $body ) );
-                    $res        = $data->Cotizador_cotizarResult;
+                shipping_coordinadora_wc_cswc()->log($params);
+
+
+                $data = Shipping_Coordinadora_WC::cotizar($params);
+
+                if (isset($data)){
                     $apply_cost = true;
                     $rate       = array(
                         'id'      => $this->id,
                         'label'   => $this->title,
-                        'cost'    => $res->flete_total,
+                        'cost'    => $data->flete_total,
                         'package' => $package,
                     );
-                } catch ( \Exception $ex ) {
-                    shipping_coordinadora_wc_cswc()->log($ex->getMessage());
                 }
             }
         }
@@ -186,20 +182,6 @@ class WC_Shipping_Method_Shipping_Coordinadora_WC extends WC_Shipping_Method
         } else {
             apply_filters( 'woocommerce_shipping_' . $this->id . '_is_available', false, $package, $this );
         }
-    }
-
-    /**
-     * Removes the accents in the name of locations
-     *
-     * @param  string $name_location Name of the location with accents.
-     * @return string                Name of the location with no accents.
-     */
-    public function formatted_name_Location( $name_location )
-    {
-        $name_location = ucfirst( mb_strtolower( $name_location ) );
-
-        return preg_replace('/[^A-Za-z0-9\-]/', '', $name_location);
-
     }
 
     public function short_name_location($name_location)

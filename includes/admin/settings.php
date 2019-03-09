@@ -46,13 +46,9 @@ $cities = $wpdb->get_results(
 $sending_cities = array();
 
 if (!empty($cities)){
+
     foreach ($cities as $city){
-        $sending_cities = array_merge(
-            $sending_cities,
-            array(
-                $city->codigo => "$city->nombre, $city->nombre_departamento"
-            )
-        );
+        $sending_cities[$city->codigo] = "$city->nombre, $city->nombre_departamento";
     }
 }
 

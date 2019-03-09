@@ -18,6 +18,7 @@ class Shipping_Coordinadora_WC extends WC_Shipping_Method_Shipping_Coordinadora_
         parent::__construct($instance_id);
 
         $this->coordinadora = new WebService($this->apikey, $this->password_tracings, $this->nit, $this->id_client, $this->user, $this->password_guides);
+        $this->coordinadora->sandbox_mode($this->isTest);
     }
 
     public function update_cities()
@@ -158,5 +159,18 @@ class Shipping_Coordinadora_WC extends WC_Shipping_Method_Shipping_Coordinadora_
             shipping_coordinadora_wc_cswc_notices( $exception->getMessage() );
         }
 
+    }
+
+    public static function cotizar($params)
+    {
+        try{
+            $instance = new self();
+            $res = $instance->coordinadora->Cotizador_cotizar($params);
+        }catch (\Exception $exception){
+            shipping_coordinadora_wc_cswc()->log($exception->getMessage());
+            $res = null;
+        }
+
+        return $res;
     }
 }
