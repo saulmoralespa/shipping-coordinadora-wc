@@ -160,9 +160,6 @@ class WC_Shipping_Method_Shipping_Coordinadora_WC extends WC_Shipping_Method
                     )
                 );
 
-                shipping_coordinadora_wc_cswc()->log($params);
-
-
                 $data = Shipping_Coordinadora_WC::cotizar($params);
 
                 if (isset($data)){
@@ -173,6 +170,13 @@ class WC_Shipping_Method_Shipping_Coordinadora_WC extends WC_Shipping_Method
                         'cost'    => $data->flete_total,
                         'package' => $package,
                     );
+                    add_filter( 'woocommerce_cart_shipping_method_full_label', function($label) use($data) {
+                        $label .= "<br /><small>";
+                        $label .= "Estimación de entrega: ";
+                        $label .= $data->dias_entrega > 1 ? "$data->dias_entrega días" : "1 día";
+                        $label .= '</small>';
+                        return $label;
+                    }, 1);
                 }
             }
         }
