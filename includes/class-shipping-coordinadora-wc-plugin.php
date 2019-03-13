@@ -84,6 +84,8 @@ class Shipping_Coordinadora_WC_Plugin
         add_filter( 'plugin_action_links_' . plugin_basename( $this->file), array( $this, 'plugin_action_links' ) );
         add_action( 'shipping_coordinadora_wc_cswc_schedule',array('Shipping_Coordinadora_WC', 'update_cities'));
         add_filter( 'woocommerce_shipping_methods', array( $this, 'shipping_coordinadora_wc_add_method') );
+
+        add_action( 'woocommerce_order_status_changed',array('Shipping_Coordinadora_WC', 'generate_guide_dispath'), 20, 4 );
     }
 
     public function plugin_action_links($links)

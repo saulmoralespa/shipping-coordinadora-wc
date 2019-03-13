@@ -4,10 +4,10 @@ wc_enqueue_js( "
     jQuery( function( $ ) {
 	
 	let shipping_coordinadora_live_tracing_fields = '#woocommerce_shipping_coordinadora_wc_api_key, #woocommerce_shipping_coordinadora_wc_password_tracing, #woocommerce_shipping_coordinadora_wc_nit';
-	let shipping_coordinadora_live_guides_fields = '#woocommerce_shipping_coordinadora_wc_id_client, #woocommerce_shipping_coordinadora_wc_user, #woocommerce_shipping_coordinadora_wc_password_guides';
+	let shipping_coordinadora_live_guides_fields = '#woocommerce_shipping_coordinadora_wc_id_client, #woocommerce_shipping_coordinadora_wc_user, #woocommerce_shipping_coordinadora_wc_password_guides, #woocommerce_shipping_coordinadora_wc_code_account';
 	
-	let shipping_coordinadora_sandbox_tracing_fields = '#woocommerce_shipping_coordinadora_wc_sandbox_api_key, #woocommerce_shipping_coordinadora_wc_sandbox_password_tracing, #woocommerce_shipping_coordinadora_wc_sandbox_nit';
-	let shipping_coordinadora_sandbox_guides_fields = '#woocommerce_shipping_coordinadora_wc_sandbox_id_client, #woocommerce_shipping_coordinadora_wc_sandbox_user, #woocommerce_shipping_coordinadora_wc_sandbox_password_guides';
+	let shipping_coordinadora_sandbox_tracing_fields = '#woocommerce_shipping_coordinadora_wc_sandbox_api_key, #woocommerce_shipping_coordinadora_wc_sandbox_password_tracings, #woocommerce_shipping_coordinadora_wc_sandbox_nit';
+	let shipping_coordinadora_sandbox_guides_fields = '#woocommerce_shipping_coordinadora_wc_sandbox_id_client, #woocommerce_shipping_coordinadora_wc_sandbox_user, #woocommerce_shipping_coordinadora_wc_sandbox_password_guides, #woocommerce_shipping_coordinadora_wc_sandbox_code_account';
 
 	$( '#woocommerce_shipping_coordinadora_wc_environment' ).change(function(){
 
@@ -190,6 +190,19 @@ return array_merge(
             'description' => __( 'No confunda con la de seguimiento de despachos' ),
             'desc_tip' => true,
         ),
+        'code_account' => array(
+            'title' => __( 'Código de cuenta' ),
+            'type'        => 'select',
+            'class'       => 'wc-enhanced-select',
+            'description' => __( 'El acuerdo de pago Cuenta Corriente, Acuerdo Semanal, Flete Pago' ),
+            'desc_tip' => true,
+            'default' => true,
+            'options'     => array(
+                1    => __( 'Cuenta Corriente'),
+                2    => __( 'Acuerdo Semanal'),
+                3 => __( 'Flete Pago'),
+            ),
+        ),
         'sandbox_guides'          => array(
             'title'       => __( 'Generación de guias (pruebas)' ),
             'type'        => 'title',
@@ -212,6 +225,19 @@ return array_merge(
             'type'  => 'text',
             'description' => __( 'No confunda con la de seguimiento de despachos' ),
             'desc_tip' => true,
-        )
+        ),
+        'sandbox_code_account' => array(
+            'title' => __( 'Código de cuenta' ),
+            'type'        => 'select',
+            'class'       => 'wc-enhanced-select',
+            'description' => __( 'El acuerdo de pago Cuenta Corriente, Acuerdo Semanal, Flete Pago' ),
+            'desc_tip' => true,
+            'default' => true,
+            'options'     => array(
+                1    => __( 'Cuenta Corriente'),
+                2    => __( 'Acuerdo Semanal'),
+                3 => __( 'Flete Pago'),
+            ),
+        ),
     )
 );

@@ -35,6 +35,8 @@ class WC_Shipping_Method_Shipping_Coordinadora_WC extends WC_Shipping_Method
             $this->id_client = $this->get_option( 'sandbox_id_client' );
             $this->user = $this->get_option( 'sandbox_user' );
             $this->password_guides = $this->get_option('sandbox_password_guides');
+            $this->code_account = $this->get_option('sandbox_code_account');
+
         }else{
             $this->apikey = $this->get_option( 'api_key' );
             $this->password_tracings = $this->get_option( 'password_tracings' );
@@ -43,6 +45,7 @@ class WC_Shipping_Method_Shipping_Coordinadora_WC extends WC_Shipping_Method
             $this->id_client = $this->get_option( 'id_client' );
             $this->user = $this->get_option( 'user' );
             $this->password_guides = $this->get_option('password_guides');
+            $this->code_account = $this->get_option('code_account');
         }
 
         $this->city_sender = $this->get_option('city_sender');
@@ -99,10 +102,9 @@ class WC_Shipping_Method_Shipping_Coordinadora_WC extends WC_Shipping_Method
      * @access public
      * @param mixed $package Array containing the cart packages. To see more about these packages see the 'calculate_shipping' method in this file: woocommerce/includes/class-wc-cart.php.
      */
-    public function calculate_shipping( $package = array() ) {
-        global $wpdb;
+    public function calculate_shipping( $package = array() )
+    {
         global $woocommerce;
-        $table_name        = $wpdb->prefix . 'shipping_coordinadora_cities';
         $state_destination = $package['destination']['state'];
         $city_destination  = $package['destination']['city'];
         $items             = $woocommerce->cart->get_cart();
@@ -134,22 +136,13 @@ class WC_Shipping_Method_Shipping_Coordinadora_WC extends WC_Shipping_Method
         if ( ! empty( $cart_prods ) && 'CO' === $package['destination']['country']
             && $state_destination && $city_destination ) {
 
-            $countries_obj        = new WC_Countries();
-            $country_states_array = $countries_obj->get_states();
-            $state_name           = $country_states_array['CO'][ $state_destination ];
-            $state_name           = $this->short_name_location($state_name);
-
-
-            $query = "SELECT codigo FROM $table_name WHERE nombre_departamento='$state_name' AND nombre='$city_destination'";
-
-            $result_destination = $wpdb->get_row( $query );
+            $result_destination = Shipping_Coordinadora_WC::destination_code($state_destination, $city_destination);
 
             if ( ! empty( $result_destination ) ) {
 
-
                 $params = array(
-                    'div'            => '01',
-                    'cuenta'         => '2',
+                    'div'            => '',
+                    'cuenta'         => $this->code_account,
                     'producto'       => '0',
                     'origen'         => $this->city_sender,
                     'destino'        => $result_destination->codigo,
@@ -159,6 +152,9 @@ class WC_Shipping_Method_Shipping_Coordinadora_WC extends WC_Shipping_Method
                         'item' => $cart_prods,
                     )
                 );
+
+
+                shipping_coordinadora_wc_cswc()->log($params);
 
                 $data = Shipping_Coordinadora_WC::cotizar($params);
 
@@ -186,13 +182,6 @@ class WC_Shipping_Method_Shipping_Coordinadora_WC extends WC_Shipping_Method
         } else {
             apply_filters( 'woocommerce_shipping_' . $this->id . '_is_available', false, $package, $this );
         }
-    }
-
-    public function short_name_location($name_location)
-    {
-        if ( 'Valle del Cauca' === $name_location )
-            $name_location =  'Valle';
-        return $name_location;
     }
 
 }

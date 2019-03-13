@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Shipping Coordinadora Woocommerce
  * Description: Shipping Coordinadora Woocommerce is available for Colombia
- * Version: 1.0.8
+ * Version: 1.0.10
  * Author: Saul Morales Pacheco
  * Author URI: https://saulmoralespa.com
  * License: GNU General Public License v3.0
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if(!defined('SHIPPING_COORDINADORA_WC_CSWC_VERSION')){
-    define('SHIPPING_COORDINADORA_WC_CSWC_VERSION', '1.0.8');
+    define('SHIPPING_COORDINADORA_WC_CSWC_VERSION', '1.0.10');
 }
 
 add_action( 'plugins_loaded', 'shipping_coordinadora_wc_cswc_init', 0 );
